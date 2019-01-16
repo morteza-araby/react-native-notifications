@@ -162,7 +162,7 @@ public class PushNotification implements IPushNotification {
             notificationManager.createNotificationChannel(channel);
             notification.setChannelId(CHANNEL_ID);
         }
-        
+
         return notification;
     }
 
@@ -187,6 +187,12 @@ public class PushNotification implements IPushNotification {
     }
 
     private void notifyReceivedToJS() {
+      final Context appContext = mAppLifecycleFacade.getRunningReactContext();
+        final Intent mIntent = mAppLaunchHelper.getLaunchIntent(mContext);
+        mIntent.setAction(Intent.ACTION_MAIN);
+        mIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(mIntent);
         mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
     }
 
