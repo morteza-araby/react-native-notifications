@@ -190,7 +190,7 @@ public class PushNotification implements IPushNotification {
         mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
         this.launchOrResumeApp();
         try {
-            Thread.sleep(5000);
+            Thread.sleep(500);
             this.notifiyReceivedForegroundNotificationToJS();
             this.notifyOpenedToJS();
         } catch (InterruptedException e) {
