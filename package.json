@@ -94,5 +94,5 @@
     "start": "npm run test --silent; ./node_modules/.bin/chokidar \"test/*.js\" \"*.js\" -c 'npm run test --silent' --silent",
     "test": "mocha --compilers js:babel-register --reporter spec \"test/*.spec.js\""
   },
-  "version": "1.2.0"
+  "version": "1.2.1"
 }
