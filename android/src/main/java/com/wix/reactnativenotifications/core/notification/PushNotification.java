@@ -1,5 +1,6 @@
 package com.wix.reactnativenotifications.core.notification;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.util.Log;
 
 import com.facebook.react.bridge.ReactContext;
 import com.wix.reactnativenotifications.core.AppLaunchHelper;
@@ -187,19 +190,30 @@ public class PushNotification implements IPushNotification {
     }
 
     private void notifyReceivedToJS() {
-        mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
+      mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
 
-        try {
-          // Wait for the notification sound
-            Thread.sleep(2000);
-            // this.notifiyReceivedForegroundNotificationToJS();
-            this.launchOrResumeApp();
-            Thread.sleep(500);
-            this.notifyOpenedToJS();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+      try {
+        PowerManager pm = (PowerManager) mContext.getSystemService((mContext.POWER_SERVICE));
+        boolean isScreenOn = pm.isScreenOn();
+        final int e1 = Log.e("screen on..............", "" + isScreenOn);
+        if(isScreenOn==false) {
+            @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "MyLock");
+            wl.acquire(10000);
+            @SuppressLint("InvalidWakeLockTag") PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyCpuLock");
+            ((PowerManager.WakeLock) wl_cpu).acquire(10000);
         }
-    }
+        // Wait for the notification sound
+          Thread.sleep(2000);
+          // this.notifiyReceivedForegroundNotificationToJS();
+          this.launchOrResumeApp();
+          Thread.sleep(500);
+          this.notifyOpenedToJS();
+
+      } catch (InterruptedException e) {
+          e.printStackTrace();
+      }
+
+  }
     private void notifiyReceivedForegroundNotificationToJS() {
       mJsIOHelper.sendEventToJS(NOTIFICATION_RECEIVED_FOREGROUND_EVENT_NAME, mNotificationProps.asBundle(), mAppLifecycleFacade.getRunningReactContext());
   }
